@@ -63,25 +63,25 @@ class Database(object):
         """
         # fetch domain id and store a new domain if the name was unknown
         cursor = self._connection.cursor()
-        cursor.execute("select id from domain where name=?", (unicode(domain.name, 'utf-8'),))
+        cursor.execute("select id from domain where name=%s", (unicode(domain.name, 'utf-8'),))
         element = cursor.fetchone()
 
         if element is not None:
             domain_id = element[0]
         else:
-            cursor.execute("insert into domain (name) VALUES (?)", (unicode(domain.name, 'utf-8'), ))
+            cursor.execute("insert into domain (name) VALUES (%s)", (unicode(domain.name, 'utf-8'), ))
             domain_id = cursor.lastrowid
 
         # log the main data
         unix_timestamp = int(time.time())
 
-        cursor.execute("insert into logentry (domain_id, timestamp, cpu_seconds, memory, memory_percent, max_memory, max_memory_percent, virtual_cpus) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        cursor.execute("insert into logentry (domain_id, timestamp, cpu_seconds, memory, memory_percent, max_memory, max_memory_percent, virtual_cpus) VALUES (%d, %d, %d, %d, %2.2f, %d, %2.2f, %d)",
                        (domain_id, unix_timestamp, domain.cpu_seconds, domain.memory, domain.memory_percent, domain.max_memory, domain.max_memory_percent, domain.virtual_cpus))
         entry_id = cursor.lastrowid
 
         # log network data
         for network in domain.networks:
-            cursor.execute("insert into networkentry (logentry_id, rx_bytes, rx_packets, rx_error, rx_drop, tx_bytes, tx_packets, tx_error, tx_drop) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
+            cursor.execute("insert into networkentry (logentry_id, rx_bytes, rx_packets, rx_error, rx_drop, tx_bytes, tx_packets, tx_error, tx_drop) VALUES (%d, %d, %d, %d, %d, %d, %d, %d, %d)",
                            (entry_id, network.rx.bytes, network.rx.packets, network.rx.packets, network.rx.error, network.tx.bytes, network.tx.packets, network.tx.packets, network.tx.error))
 
         self._connection.commit()
