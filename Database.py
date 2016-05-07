@@ -42,6 +42,7 @@ class Database(object):
             CREATE TABLE networkentry (
                 id              INTEGER PRIMARY KEY AUTOINCREMENT,
                 logentry_id     INTEGER NOT NULL,
+                interface       TEXT NOT NULL,
                 rx_bytes        INTEGER NOT NULL,
                 rx_packets      INTEGER NOT NULL,
                 rx_error        INTEGER NOT NULL,
@@ -81,7 +82,7 @@ class Database(object):
 
         # log network data
         for network in domain.networks:
-            cursor.execute("insert into networkentry (logentry_id, rx_bytes, rx_packets, rx_error, rx_drop, tx_bytes, tx_packets, tx_error, tx_drop) VALUES (%d, %d, %d, %d, %d, %d, %d, %d, %d)",
-                           (entry_id, network.rx.bytes, network.rx.packets, network.rx.packets, network.rx.error, network.tx.bytes, network.tx.packets, network.tx.packets, network.tx.error))
+            cursor.execute("insert into networkentry (logentry_id, interface, rx_bytes, rx_packets, rx_error, rx_drop, tx_bytes, tx_packets, tx_error, tx_drop) VALUES (%d, %s, %d, %d, %d, %d, %d, %d, %d, %d)",
+                           (entry_id, unicode(network.name, 'utf-8'), network.rx.bytes, network.rx.packets, network.rx.packets, network.rx.error, network.tx.bytes, network.tx.packets, network.tx.packets, network.tx.error))
 
         self._connection.commit()
