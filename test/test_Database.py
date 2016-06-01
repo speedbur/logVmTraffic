@@ -6,15 +6,16 @@ from DomainLogEntry import DomainLogEntry
 from XenTopOutputParser import XenTopOutputParser
 
 
+# noinspection PyMethodMayBeStatic
 class DatabaseTest(unittest.TestCase):
 
 
     def test_create_tables(self):
-        self.database = Database("/tmp/lala.db")
+        database = Database("/tmp/lala.db")
         os.unlink("/tmp/lala.db")
 
     def test_store_domain_entry(self):
-        self.database = Database("/tmp/lala.db")
+        database = Database("/tmp/lala.db")
 
         domain = DomainLogEntry()
         domain.name = "Test"
@@ -39,3 +40,17 @@ class DatabaseTest(unittest.TestCase):
         finally:
             f.close()
         os.unlink("/tmp/lala.db")
+
+    def test_fetch_all_domains(self):
+        path = os.path.dirname(os.path.realpath(__file__))
+        path = os.path.join(path, "testdata.db")
+        database = Database(path)
+        result = database.get_all_domains()
+        self.assertEquals(len(result), 14)
+
+    def test_fetch_network_data_for_domain_and_time_range(self):
+        path = os.path.dirname(os.path.realpath(__file__))
+        path = os.path.join(path, "testdata.db")
+        database = Database(path)
+        result = database.fetch_network_data_for_domain_and_time_range(7, 1462635336, 1463479263)
+        self.assertEquals(len(result), 708)
