@@ -64,13 +64,13 @@ class Database(object):
         """
         # fetch domain id and store a new domain if the name was unknown
         cursor = self._connection.cursor()
-        cursor.execute("select id from domain where name=%s", (unicode(domain.name, 'utf-8'),))
+        cursor.execute("select id from domain where name=%s", (domain.name,))
         element = cursor.fetchone()
 
         if element is not None:
             domain_id = element[0]
         else:
-            cursor.execute("insert into domain (name) VALUES (%s)", (unicode(domain.name, 'utf-8'), ))
+            cursor.execute("insert into domain (name) VALUES (%s)", (domain.name, ))
             domain_id = cursor.lastrowid
 
         # log the main data
@@ -83,6 +83,6 @@ class Database(object):
         # log network data
         for network in domain.networks:
             cursor.execute("insert into networkentry (logentry_id, interface, rx_bytes, rx_packets, rx_error, rx_drop, tx_bytes, tx_packets, tx_error, tx_drop) VALUES (%d, %s, %d, %d, %d, %d, %d, %d, %d, %d)",
-                           (entry_id, unicode(network.name, 'utf-8'), network.rx.bytes, network.rx.packets, network.rx.packets, network.rx.error, network.tx.bytes, network.tx.packets, network.tx.packets, network.tx.error))
+                           (entry_id, network.name, network.rx.bytes, network.rx.packets, network.rx.packets, network.rx.error, network.tx.bytes, network.tx.packets, network.tx.packets, network.tx.error))
 
         self._connection.commit()
